@@ -1,2 +1,2 @@
-# Analisisydise-odelgoritmos
+# Analisisydiseñodealgoritmos
 Proyecto uno
