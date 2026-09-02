@@ -275,17 +275,17 @@ int main() {
 
     // --- REPORTES Y HALLAZGOS EMPÍRICOS ---
     printf("---------------------------------------------------------\n");
-    printf(" REPORTES Y HALLAZGOS EMPIRICOS                         \n");
+    printf(" REPORTES Y HALLAZGOS EMPÍRICOS                         \n");
     printf("---------------------------------------------------------\n");
     printf("1. ORDENAMIENTO:\n");
-    printf("   Merge Sort fue exponencialmente mas rapido que Fuerza Bruta (%.2f ms vs %.2f ms).\n", 
+    printf("   Merge Sort fue más rápido que Fuerza Bruta (%.2f ms vs %.2f ms).\n", 
            tiempo_merge, tiempo_fuerza_bruta);
     printf("   Esto se debe a su complejidad O(n log n) frente al O(n^2) del Selection Sort.\n\n");
-    printf("2. BUSQUEDA Y LIMITACION ESTRUCTURAL:\n");
-    printf("   La busqueda lineal secuencial requiere recorrer nodo por nodo O(n).\n");
+    printf("2. BÚSQUEDA Y LIMITACIÓN ESTRUCTURAL:\n");
+    printf("   La búsqueda lineal secuencial requiere recorrer nodo por nodo O(n).\n");
     printf("   A pesar de tener la lista ordenada, las listas simples NO permiten acceso\n");
-    printf("   directo por indice (p. ej., arr[mid]), lo que impide implementar una\n");
-    printf("   busqueda binaria O(log n) nativa sin estructuras adicionales.\n");
+    printf("   directo por índice (p. ej., arr[mid]), lo que impide implementar una\n");
+    printf("   búsqueda binaria O(log n) nativa sin estructuras adicionales.\n");
     printf("=========================================================\n");
 
     // Liberación de Memoria Dinámica
