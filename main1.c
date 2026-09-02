@@ -277,11 +277,21 @@ int main() {
     printf("---------------------------------------------------------\n");
     printf(" REPORTES Y HALLAZGOS EMPÍRICOS                         \n");
     printf("---------------------------------------------------------\n");
+    
     printf("1. ORDENAMIENTO:\n");
-    printf("   Merge Sort fue más rápido que Fuerza Bruta (%.2f ms vs %.2f ms).\n", 
+    
+    if (tiempo_merge < tiempo_fuerza_bruta) {
+        printf("   Merge Sort fue más rápido que Fuerza Bruta (%.2f ms vs %.2f ms).\n", 
            tiempo_merge, tiempo_fuerza_bruta);
+    } else {
+        printf("   Selection Sort fue mas rapido en esta ejecucion (%.2f ms vs %.2f ms).\n",
+           tiempo_fuerza_bruta, tiempo_merge);
+    }
+    
     printf("   Esto se debe a su complejidad O(n log n) frente al O(n^2) del Selection Sort.\n\n");
+    
     printf("2. BÚSQUEDA Y LIMITACIÓN ESTRUCTURAL:\n");
+    
     printf("   La búsqueda lineal secuencial requiere recorrer nodo por nodo O(n).\n");
     printf("   A pesar de tener la lista ordenada, las listas simples NO permiten acceso\n");
     printf("   directo por índice (p. ej., arr[mid]), lo que impide implementar una\n");
