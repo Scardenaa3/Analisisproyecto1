@@ -40,6 +40,19 @@ void imprimir_muestra(Nodo* cabeza, int limite) {
     }
 }
 
+int esta_ordenada(Nodo* cabeza) {
+    while (cabeza != NULL && cabeza->siguiente != NULL) {
+
+        if (cabeza->dato.id > cabeza->siguiente->dato.id) {
+            return 0;
+        }
+
+        cabeza = cabeza->siguiente;
+    }
+
+    return 1;
+}
+
 void liberar_memoria(Nodo** cabeza) {
     Nodo* actual = *cabeza;
     Nodo* siguiente = NULL;
