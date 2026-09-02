@@ -6,28 +6,22 @@
 // 3.1. ESTRUCTURA DE DATOS BASE
 // ==========================================
 
-// Estructura para la información del paquete
 typedef struct Paquete {
     int id;           // ID único (entero)
     float peso;       // Peso (flotante)
     int prioridad;    // Prioridad (1 a 5)
 } Paquete;
 
-// Estructura de la lista enlazada simple
 typedef struct Nodo {
     Paquete dato;
     struct Nodo* siguiente;
 } Nodo;
 
-// --- Funciones Básicas de Gestión de la Lista ---
+// --- Funciones Básicas de Gestión ---
 
-// Inserción al inicio de la lista
 void insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
-    if (!nuevo) {
-        printf("Error: Memoria insuficiente.\n");
-        return;
-    }
+    if (!nuevo) return;
     nuevo->dato.id = id;
     nuevo->dato.peso = peso;
     nuevo->dato.prioridad = prioridad;
@@ -35,7 +29,6 @@ void insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
     *cabeza = nuevo;
 }
 
-// Impresión de una muestra de la lista
 void imprimir_muestra(Nodo* cabeza, int limite) {
     Nodo* actual = cabeza;
     int contador = 0;
@@ -45,12 +38,8 @@ void imprimir_muestra(Nodo* cabeza, int limite) {
         actual = actual->siguiente;
         contador++;
     }
-    if (actual != NULL) {
-        printf("  ... (listado truncado a %d elementos)\n", limite);
-    }
 }
 
-// Liberación de memoria dinámica de todos los nodos
 void liberar_memoria(Nodo** cabeza) {
     Nodo* actual = *cabeza;
     Nodo* siguiente = NULL;
@@ -62,27 +51,17 @@ void liberar_memoria(Nodo** cabeza) {
     *cabeza = NULL;
 }
 
-// Función auxiliar para duplicar la lista y poder comparar ambos ordenamientos equitativamente
 Nodo* duplicar_lista(Nodo* fuente) {
     if (fuente == NULL) return NULL;
-    
     Nodo* nueva_cabeza = NULL;
-    Nodo* ultimo = NULL;
-    Nodo* actual = fuente;
+    Nodo** ultimo = &nueva_cabeza;
 
-    while (actual != NULL) {
+    for (Nodo* actual = fuente; actual != NULL; actual = actual->siguiente) {
         Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
         nuevo->dato = actual->dato;
         nuevo->siguiente = NULL;
-
-        if (nueva_cabeza == NULL) {
-            nueva_cabeza = nuevo;
-            ultimo = nuevo;
-        } else {
-            ultimo->siguiente = nuevo;
-            ultimo = nuevo;
-        }
-        actual = actual->siguiente;
+        *ultimo = nuevo;
+        ultimo = &(nuevo->siguiente);
     }
     return nueva_cabeza;
 }
@@ -91,16 +70,13 @@ Nodo* duplicar_lista(Nodo* fuente) {
 // 3.2. DISEÑO DE ALGORITMOS DE ORDENAMIENTO
 // ==========================================
 
-// 1. Fuerza Bruta: Selection Sort INTERCAMBIANDO ENLACES (Punteros)
-// Operación nativa exigida por la rúbrica para puntuación máxima.
+// 1. Fuerza Bruta: Selection Sort intercambiando enlaces nativamente
 void ordenamiento_fuerza_bruta_enlaces(Nodo** cabeza) {
     if (*cabeza == NULL || (*cabeza)->siguiente == NULL) return;
 
-    Nodo** p_min;
     Nodo** p_actual = cabeza;
-
     while (*p_actual != NULL) {
-        p_min = p_actual;
+        Nodo** p_min = p_actual;
         Nodo** p_cursor = &((*p_actual)->siguiente);
 
         while (*p_cursor != NULL) {
@@ -111,100 +87,124 @@ void ordenamiento_fuerza_bruta_enlaces(Nodo** cabeza) {
         }
 
         if (p_min != p_actual) {
-            Nodo* temp_min = *p_min;
-            Nodo* temp_act = *p_actual;
+            Nodo* nodo_min = *p_min;
+            Nodo* nodo_act = *p_actual;
 
-            if (temp_act->siguiente == temp_min) { // Nodos adyacentes
-                temp_act->siguiente = temp_min->siguiente;
-                temp_min->siguiente = temp_act;
-                *p_actual = temp_min;
-            } else { // Nodos no adyacentes
-                Nodo* temp_next = temp_act->siguiente;
-                temp_act->siguiente = temp_min->siguiente;
-                temp_min->siguiente = temp_next;
-                *p_actual = temp_min;
-                *p_min = temp_act;
+            if (nodo_act->siguiente == nodo_min) {
+                nodo_act->siguiente = nodo_min->siguiente;
+                nodo_min->siguiente = nodo_act;
+                *p_actual = nodo_min;
+            } else {
+                Nodo* temp = nodo_act->siguiente;
+                nodo_act->siguiente = nodo_min->siguiente;
+                nodo_min->siguiente = temp;
+                *p_actual = nodo_min;
+                *p_min = nodo_act;
             }
         }
         p_actual = &((*p_actual)->siguiente);
     }
 }
 
-// 2. Dividir y Conquistar: Merge Sort adaptado nativamente a Listas Enlazadas
-Nodo* combinar(Nodo* a, Nodo* b) {
-    if (a == NULL) return b;
-    if (b == NULL) return a;
+// 2. Dividir y Conquistar: Merge Sort Iterativo Bottom-Up (Altamente Optimizado)
+Nodo* mezclar_listas(Nodo* l1, Nodo* l2, Nodo** cola) {
+    Nodo dummy;
+    Nodo* actual = &dummy;
 
-    Nodo* resultado = NULL;
-    if (a->dato.id <= b->dato.id) {
-        resultado = a;
-        resultado->siguiente = combinar(a->siguiente, b);
-    } else {
-        resultado = b;
-        resultado->siguiente = combinar(a, b->siguiente);
-    }
-    return resultado;
-}
-
-void dividir_lista(Nodo* fuente, Nodo** frente, Nodo** atras) {
-    Nodo* rapido;
-    Nodo* lento;
-    lento = fuente;
-    rapido = fuente->siguiente;
-
-    while (rapido != NULL) {
-        rapido = rapido->siguiente;
-        if (rapido != NULL) {
-            lento = lento->siguiente;
-            rapido = rapido->siguiente;
+    while (l1 && l2) {
+        if (l1->dato.id <= l2->dato.id) {
+            actual->siguiente = l1;
+            l1 = l1->siguiente;
+        } else {
+            actual->siguiente = l2;
+            l2 = l2->siguiente;
         }
+        actual = actual->siguiente;
     }
-    *frente = fuente;
-    *atras = lento->siguiente;
-    lento->siguiente = NULL;
+    actual->siguiente = l1 ? l1 : l2;
+    while (actual->siguiente) {
+        actual = actual->siguiente;
+    }
+    *cola = actual;
+    return dummy.siguiente;
 }
 
-void merge_sort(Nodo** cabeza_ref) {
+void merge_sort_iterativo(Nodo** cabeza_ref) {
+    if (!*cabeza_ref || !(*cabeza_ref)->siguiente) return;
+
     Nodo* cabeza = *cabeza_ref;
-    Nodo* a;
-    Nodo* b;
+    int tamano = 1;
+    int largo = 0;
 
-    if ((cabeza == NULL) || (cabeza->siguiente == NULL)) {
-        return;
+    for (Nodo* curr = cabeza; curr != NULL; curr = curr->siguiente) largo++;
+
+    Nodo dummy;
+    dummy.siguiente = cabeza;
+
+    while (tamano < largo) {
+        Nodo* prev = &dummy;
+        Nodo* curr = dummy.siguiente;
+
+        while (curr) {
+            Nodo* left = curr;
+            Nodo* right = NULL;
+            Nodo* next_sub = NULL;
+
+            // Cortar primera sublista
+            int count = 1;
+            while (count < tamano && curr->siguiente) {
+                curr = curr->siguiente;
+                count++;
+            }
+            right = curr->siguiente;
+            curr->siguiente = NULL;
+            curr = right;
+
+            // Cortar segunda sublista
+            if (right) {
+                count = 1;
+                while (count < tamano && curr->siguiente) {
+                    curr = curr->siguiente;
+                    count++;
+                }
+                next_sub = curr->siguiente;
+                curr->siguiente = NULL;
+                curr = next_sub;
+            }
+
+            // Mezclar ambas sublistas
+            Nodo* cola = NULL;
+            prev->siguiente = mezclar_listas(left, right, &cola);
+            prev = cola;
+        }
+        tamano *= 2;
     }
-
-    dividir_lista(cabeza, &a, &b);
-
-    merge_sort(&a);
-    merge_sort(&b);
-
-    *cabeza_ref = combinar(a, b);
+    *cabeza_ref = dummy.siguiente;
 }
 
 // ==========================================
 // 3.3. DISEÑO DE ALGORITMOS DE BÚSQUEDA
 // ==========================================
 
-// Búsqueda Lineal Fuerza Bruta: Recorrido nodo por nodo
+// Búsqueda Lineal
 Nodo* busqueda_lineal(Nodo* cabeza, int id_buscado) {
-    Nodo* actual = cabeza;
-    while (actual != NULL) {
+    for (Nodo* actual = cabeza; actual != NULL; actual = actual->siguiente) {
         if (actual->dato.id == id_buscado) {
-            return actual; // Encontrado
+            return actual;
         }
-        actual = actual->siguiente;
     }
-    return NULL; // No encontrado
+    return NULL;
 }
 
 // ==========================================
 // 3.4. SIMULACIÓN Y MEDICIÓN DE TIEMPO
 // ==========================================
+
 int main() {
     srand((unsigned int)time(NULL));
 
     Nodo* lista_original = NULL;
-    int total_paquetes = 50000; // Mínimo 50,000 según requerimiento
+    int total_paquetes = 50000;
     int id_objetivo_existente = -1;
 
     printf("=========================================================\n");
@@ -219,35 +219,32 @@ int main() {
 
         insertar_inicio(&lista_original, id, peso, prioridad);
 
-        // Guardamos el ID del último insertado para asegurar una búsqueda exitosa
         if (i == total_paquetes / 2) {
             id_objetivo_existente = id;
         }
     }
     printf("Lista inicial de %d paquetes generada correctamente.\n\n", total_paquetes);
 
-    // Muestra inicial
     printf("Muestra de los primeros 5 paquetes (Desordenados):\n");
     imprimir_muestra(lista_original, 5);
     printf("\n");
 
-    // --- EXPERIMENTO DE ORDENAMIENTO ---
+    // --- 1. EXPERIMENTACIÓN DE ORDENAMIENTO ---
     printf("---------------------------------------------------------\n");
     printf(" 1. EXPERIMENTACION DE ORDENAMIENTO                      \n");
     printf("---------------------------------------------------------\n");
 
-    // Duplicamos la lista para usar exactamente los mismos datos en ambos algoritmos
     Nodo* lista_merge = duplicar_lista(lista_original);
     Nodo* lista_fuerza_bruta = duplicar_lista(lista_original);
 
-    // 1. Merge Sort
+    // Medición Merge Sort Iterativo
     clock_t inicio = clock();
-    merge_sort(&lista_merge);
+    merge_sort_iterativo(&lista_merge);
     clock_t fin = clock();
     double tiempo_merge = ((double)(fin - inicio)) / CLOCKS_PER_SEC * 1000.0;
     printf("-> Merge Sort (Dividir y Conquistar) : %.2f ms\n", tiempo_merge);
 
-    // 2. Selection Sort por Enlaces
+    // Medición Selection Sort
     printf("-> Ejecutando Selection Sort (Fuerza Bruta por enlaces)... Por favor espere...\n");
     inicio = clock();
     ordenamiento_fuerza_bruta_enlaces(&lista_fuerza_bruta);
@@ -259,7 +256,7 @@ int main() {
     imprimir_muestra(lista_merge, 5);
     printf("\n");
 
-    // --- EXPERIMENTO DE BÚSQUEDA ---
+    // --- 2. EXPERIMENTACIÓN DE BÚSQUEDA MASIVA ---
     printf("---------------------------------------------------------\n");
     printf(" 2. EXPERIMENTACION DE BUSQUEDA MASIVA                   \n");
     printf("---------------------------------------------------------\n");
@@ -276,7 +273,7 @@ int main() {
     double tiempo_busqueda = ((double)(fin - inicio)) / CLOCKS_PER_SEC * 1000.0;
     printf("-> Tiempo acumulado de %d busquedas lineales: %.2f ms\n\n", rondas_busqueda, tiempo_busqueda);
 
-    // --- CONCLUSIONES DE LA SIMULACIÓN EMPÍRICA ---
+    // --- REPORTES Y HALLAZGOS EMPÍRICOS ---
     printf("---------------------------------------------------------\n");
     printf(" REPORTES Y HALLAZGOS EMPIRICOS                         \n");
     printf("---------------------------------------------------------\n");
@@ -291,7 +288,7 @@ int main() {
     printf("   busqueda binaria O(log n) nativa sin estructuras adicionales.\n");
     printf("=========================================================\n");
 
-    // Liberar memoria
+    // Liberación de Memoria Dinámica
     liberar_memoria(&lista_original);
     liberar_memoria(&lista_merge);
     liberar_memoria(&lista_fuerza_bruta);
