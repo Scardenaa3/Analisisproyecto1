@@ -1,8 +1,15 @@
-# 📦 Sistema de Gestión y Análisis Algorítmico de Paquetes Logísticos
+#  Sistema de Gestión y Análisis Algorítmico de Paquetes Logísticos
 
 Aplicación ejecutable en consola desarrollada en **C** para la simulación, gestión, ordenamiento y búsqueda de paquetes en un centro de distribución utilizando **listas enlazadas simples**. 
 
 El proyecto realiza un análisis y evaluación empírica comparando algoritmos de **Fuerza Bruta ($O(n^2)$)** y **Dividir y Conquistar ($O(n \log n)$)** sobre un volumen masivo de datos ($50.000+$ elementos), midiendo los tiempos reales de ejecución mediante la librería `<time.h>`.
+
+---
+
+## 🔗 Repositorio del Proyecto
+
+* **URL del Repositorio:** [https://github.com/tu-usuario/tu-repositorio](https://github.com/tu-usuario/tu-repositorio)
+* **Plataforma de Entrega:** EAFIT Interactiva
 
 ---
 
