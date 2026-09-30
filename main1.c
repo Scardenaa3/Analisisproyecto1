@@ -5,21 +5,41 @@
 /*
 ================================================================================
  PROYECTO 1: SISTEMA DE GESTIÓN Y ANÁLISIS ALGORÍTMICO DE PAQUETES LOGÍSTICOS
- Integrantes y Responsabilidades:
- - Viliam Sofía Mesa: Implementación de Búsqueda Lineal y Generación de Datos.
- - Mariana Cardona:   Implementación de Selección Sort por enlaces y pruebas.
- - Santiago Cárdenas: Implementación de Merge Sort Iterativo y Módulo de Tiempos.
+ Asignatura: Análisis de Algoritmos - Universidad EAFIT
+ 
+ DISTRIBUCIÓN DE RESPONSABILIDADES Y ROLES LÓGICOS:
+ -------------------------------------------------------------------------------
+ - Santiago Cárdenas:
+   * Diseñador Principal & Desarrollador de Ordenamiento Eficiente.
+   * Responsable de la implementación de Merge Sort Iterativo (Bottom-Up)
+     sobre enlaces dinámicos de listas simples.
+   * Arquitectura del módulo de medición de tiempos con precisiones en <time.h>.
+   * Integración general, menú de consola y gestión del ciclo de vida del proceso.
+
+ - Viliam Sofía Mesa:
+   * Analista de Datos & Desarrolladora de Módulos de Búsqueda.
+   * Implementación de la Búsqueda Lineal y manejo de casos borde (IDs inexistentes).
+   * Generación y validación secuencial de paquetes aleatorios con IDs únicos.
+   * Diseño de la simulación de búsquedas masivas (casos 50% éxito / 50% fallo).
+
+ - Mariana Cardona:
+   * Desarrolladora de Estructuras & Algoritmos de Fuerza Bruta.
+   * Implementación del algoritmo Selection Sort mediante manipulación directa
+     de enlaces (punteros) sin copias a arreglos auxiliares.
+   * Módulo de duplicación de listas simples en memoria dinámica.
+   * Desarrollo de pruebas unitarias e impresión de muestras de control.
 ================================================================================
 */
 
 // ==========================================
 // 3.1. ESTRUCTURA DE DATOS BASE
+// (Desarrollado en conjunto por el equipo)
 // ==========================================
 
 typedef struct Paquete {
     int id;           // ID único (entero)
-    float peso;       // Peso (flotante)
-    int prioridad;    // Prioridad (1 a 5)
+    float peso;       // Peso en kg (flotante)
+    int prioridad;    // Prioridad de envío (1 a 5)
 } Paquete;
 
 typedef struct Nodo {
@@ -29,7 +49,7 @@ typedef struct Nodo {
 
 // --- Funciones Básicas de Gestión ---
 
-// Búsqueda auxiliar para validación de existencia
+// Búsqueda auxiliar para validación (Responsable: Viliam Sofía Mesa)
 Nodo* busqueda_lineal(Nodo* cabeza, int id_buscado) {
     for (Nodo* actual = cabeza; actual != NULL; actual = actual->siguiente) {
         if (actual->dato.id == id_buscado) {
@@ -39,9 +59,9 @@ Nodo* busqueda_lineal(Nodo* cabeza, int id_buscado) {
     return NULL;
 }
 
-// Inserción validando ID único (HU01 y HU02)
+// Inserción validando prioridad (Responsable: Viliam Sofía Mesa)
 int insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
-    if (prioridad < 1 || prioridad > 5) return 0; // Validación de prioridad
+    if (prioridad < 1 || prioridad > 5) return 0; // Validación de rango de prioridad
 
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
     if (!nuevo) return 0;
@@ -53,6 +73,7 @@ int insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
     return 1;
 }
 
+// Impresión de muestras de verificación (Responsable: Mariana Cardona)
 void imprimir_muestra(Nodo* cabeza, int limite) {
     Nodo* actual = cabeza;
     int contador = 0;
@@ -64,6 +85,7 @@ void imprimir_muestra(Nodo* cabeza, int limite) {
     }
 }
 
+// Liberación estricta de memoria dinámica (Responsable: Santiago Cárdenas)
 void liberar_memoria(Nodo** cabeza) {
     Nodo* actual = *cabeza;
     Nodo* siguiente = NULL;
@@ -75,6 +97,7 @@ void liberar_memoria(Nodo** cabeza) {
     *cabeza = NULL;
 }
 
+// Clona la lista simple para aislar las pruebas (Responsable: Mariana Cardona)
 Nodo* duplicar_lista(Nodo* fuente) {
     if (fuente == NULL) return NULL;
     Nodo* nueva_cabeza = NULL;
@@ -95,6 +118,7 @@ Nodo* duplicar_lista(Nodo* fuente) {
 // ==========================================
 
 // 1. Fuerza Bruta: Selection Sort intercambiando enlaces nativamente
+// (Responsable: Mariana Cardona)
 void ordenamiento_fuerza_bruta_enlaces(Nodo** cabeza) {
     if (*cabeza == NULL || (*cabeza)->siguiente == NULL) return;
 
@@ -131,6 +155,7 @@ void ordenamiento_fuerza_bruta_enlaces(Nodo** cabeza) {
 }
 
 // 2. Dividir y Conquistar: Merge Sort Iterativo Bottom-Up
+// (Responsable: Santiago Cárdenas)
 Nodo* mezclar_listas(Nodo* l1, Nodo* l2, Nodo** cola) {
     Nodo dummy;
     Nodo* actual = &dummy;
@@ -205,6 +230,7 @@ void merge_sort_iterativo(Nodo** cabeza_ref) {
 
 // ==========================================
 // 3.4. SIMULACIÓN Y MEDICIÓN DE TIEMPO
+// (Responsables: Santiago Cárdenas & Viliam Sofía Mesa)
 // ==========================================
 
 int main() {
@@ -269,11 +295,11 @@ int main() {
 
     // --- 2. EXPERIMENTACIÓN DE BÚSQUEDA ---
     printf("---------------------------------------------------------\n");
-    printf(" 2. EXPERIMENTACION DE BUSQUEDA MASIVA                   \n");
+    printf(" 2. EXPERIMENTACION DE BUSQUEDA MASIVA                    \n");
     printf("---------------------------------------------------------\n");
 
-    // Consulta individual demostrativa (HU08)
-    printf(" Demostracion de busqueda por ID especifico (HU08):\n");
+    // Consulta individual demostrativa
+    printf(" Demostracion de busqueda por ID especifico:\n");
     Nodo* hallado = busqueda_lineal(lista_merge, id_objetivo_existente);
     if (hallado) {
         printf("  [EXITO] Paquete encontrado -> ID: %d | Peso: %.2f kg | Prioridad: %d\n",
@@ -288,7 +314,7 @@ int main() {
         printf("  [CORRECTO] Busqueda de ID inexistente (%d): Informado correctamente.\n\n", id_inexistente);
     }
 
-    // Simulación masiva separando casos exitosos y fallidos (HU09)
+    // Simulación masiva separando casos exitosos y fallidos
     int rondas_busqueda = 1000;
     printf("Ejecutando %d rondas de Busqueda Lineal (50%% exitosas / 50%% fallidas)...\n", rondas_busqueda);
 
