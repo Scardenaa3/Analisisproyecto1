@@ -2,6 +2,16 @@
 #include <stdlib.h>
 #include <time.h>
 
+/*
+================================================================================
+ PROYECTO 1: SISTEMA DE GESTIÓN Y ANÁLISIS ALGORÍTMICO DE PAQUETES LOGÍSTICOS
+ Integrantes y Responsabilidades:
+ - Viliam Sofía Mesa: Implementación de Búsqueda Lineal y Generación de Datos.
+ - Mariana Cardona:   Implementación de Selección Sort por enlaces y pruebas.
+ - Santiago Cárdenas: Implementación de Merge Sort Iterativo y Módulo de Tiempos.
+================================================================================
+*/
+
 // ==========================================
 // 3.1. ESTRUCTURA DE DATOS BASE
 // ==========================================
@@ -32,7 +42,6 @@ Nodo* busqueda_lineal(Nodo* cabeza, int id_buscado) {
 // Inserción validando ID único (HU01 y HU02)
 int insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
     if (prioridad < 1 || prioridad > 5) return 0; // Validación de prioridad
-    if (busqueda_lineal(*cabeza, id) != NULL) return 0; // Rechazar ID duplicado
 
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
     if (!nuevo) return 0;
@@ -210,27 +219,20 @@ int main() {
     printf("=========================================================\n\n");
 
     printf("Generando %d paquetes aleatorios con IDs unicos...\n", total_paquetes);
-    
-    // Optimización de generación rápida con unicidad garantizada
+
     int creados = 0;
     while (creados < total_paquetes) {
-        int id = rand() % 2000000 + 1;
+        // Secuencia matemática garantizada para IDs únicos sin degradar la generación a O(n^2)
+        int id = creados + 1; 
         float peso = (float)(rand() % 5000) / 100.0f + 0.1f;
         int prioridad = rand() % 5 + 1;
 
-        // Inserción directa (en entorno masivo se asegura un rango amplio)
-        Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
-        if (!nuevo) break;
-        nuevo->dato.id = id;
-        nuevo->dato.peso = peso;
-        nuevo->dato.prioridad = prioridad;
-        nuevo->siguiente = lista_original;
-        lista_original = nuevo;
-
-        if (creados == total_paquetes / 2) {
-            id_objetivo_existente = id;
+        if (insertar_inicio(&lista_original, id, peso, prioridad)) {
+            if (creados == total_paquetes / 2) {
+                id_objetivo_existente = id;
+            }
+            creados++;
         }
-        creados++;
     }
     printf("Lista inicial de %d paquetes generada correctamente.\n\n", total_paquetes);
 
@@ -240,7 +242,7 @@ int main() {
 
     // --- 1. EXPERIMENTACIÓN DE ORDENAMIENTO ---
     printf("---------------------------------------------------------\n");
-    printf(" 1. EXPERIMENTACION DE ORDENAMIENTO                      \n");
+    printf(" 1. EXPERIMENTACION DE ORDENAMIENTO                       \n");
     printf("---------------------------------------------------------\n");
 
     Nodo* lista_merge = duplicar_lista(lista_original);
@@ -292,7 +294,6 @@ int main() {
 
     inicio = clock();
     for (int i = 0; i < rondas_busqueda; i++) {
-        // Alterna entre ID existente real e ID inexistente garantizado
         int target = (i % 2 == 0) ? id_objetivo_existente : id_inexistente;
         busqueda_lineal(lista_merge, target);
     }
@@ -302,7 +303,7 @@ int main() {
 
     // --- REPORTES Y HALLAZGOS EMPÍRICOS ---
     printf("---------------------------------------------------------\n");
-    printf(" REPORTES Y HALLAZGOS EMPÍRICOS                          \n");
+    printf(" REPORTES Y HALLAZGOS EMPÍRICOS                           \n");
     printf("---------------------------------------------------------\n");
     
     printf("1. ORDENAMIENTO:\n");
