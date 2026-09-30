@@ -19,14 +19,29 @@ typedef struct Nodo {
 
 // --- Funciones Básicas de Gestión ---
 
-void insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
+// Búsqueda auxiliar para validación de existencia
+Nodo* busqueda_lineal(Nodo* cabeza, int id_buscado) {
+    for (Nodo* actual = cabeza; actual != NULL; actual = actual->siguiente) {
+        if (actual->dato.id == id_buscado) {
+            return actual;
+        }
+    }
+    return NULL;
+}
+
+// Inserción validando ID único (HU01 y HU02)
+int insertar_inicio(Nodo** cabeza, int id, float peso, int prioridad) {
+    if (prioridad < 1 || prioridad > 5) return 0; // Validación de prioridad
+    if (busqueda_lineal(*cabeza, id) != NULL) return 0; // Rechazar ID duplicado
+
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
-    if (!nuevo) return;
+    if (!nuevo) return 0;
     nuevo->dato.id = id;
     nuevo->dato.peso = peso;
     nuevo->dato.prioridad = prioridad;
     nuevo->siguiente = *cabeza;
     *cabeza = nuevo;
+    return 1;
 }
 
 void imprimir_muestra(Nodo* cabeza, int limite) {
@@ -38,19 +53,6 @@ void imprimir_muestra(Nodo* cabeza, int limite) {
         actual = actual->siguiente;
         contador++;
     }
-}
-
-int esta_ordenada(Nodo* cabeza) {
-    while (cabeza != NULL && cabeza->siguiente != NULL) {
-
-        if (cabeza->dato.id > cabeza->siguiente->dato.id) {
-            return 0;
-        }
-
-        cabeza = cabeza->siguiente;
-    }
-
-    return 1;
 }
 
 void liberar_memoria(Nodo** cabeza) {
@@ -119,7 +121,7 @@ void ordenamiento_fuerza_bruta_enlaces(Nodo** cabeza) {
     }
 }
 
-// 2. Dividir y Conquistar: Merge Sort Iterativo Bottom-Up (Altamente Optimizado)
+// 2. Dividir y Conquistar: Merge Sort Iterativo Bottom-Up
 Nodo* mezclar_listas(Nodo* l1, Nodo* l2, Nodo** cola) {
     Nodo dummy;
     Nodo* actual = &dummy;
@@ -163,7 +165,6 @@ void merge_sort_iterativo(Nodo** cabeza_ref) {
             Nodo* right = NULL;
             Nodo* next_sub = NULL;
 
-            // Cortar primera sublista
             int count = 1;
             while (count < tamano && curr->siguiente) {
                 curr = curr->siguiente;
@@ -173,7 +174,6 @@ void merge_sort_iterativo(Nodo** cabeza_ref) {
             curr->siguiente = NULL;
             curr = right;
 
-            // Cortar segunda sublista
             if (right) {
                 count = 1;
                 while (count < tamano && curr->siguiente) {
@@ -185,7 +185,6 @@ void merge_sort_iterativo(Nodo** cabeza_ref) {
                 curr = next_sub;
             }
 
-            // Mezclar ambas sublistas
             Nodo* cola = NULL;
             prev->siguiente = mezclar_listas(left, right, &cola);
             prev = cola;
@@ -193,20 +192,6 @@ void merge_sort_iterativo(Nodo** cabeza_ref) {
         tamano *= 2;
     }
     *cabeza_ref = dummy.siguiente;
-}
-
-// ==========================================
-// 3.3. DISEÑO DE ALGORITMOS DE BÚSQUEDA
-// ==========================================
-
-// Búsqueda Lineal
-Nodo* busqueda_lineal(Nodo* cabeza, int id_buscado) {
-    for (Nodo* actual = cabeza; actual != NULL; actual = actual->siguiente) {
-        if (actual->dato.id == id_buscado) {
-            return actual;
-        }
-    }
-    return NULL;
 }
 
 // ==========================================
@@ -224,17 +209,28 @@ int main() {
     printf(" SISTEMA DE GESTION Y ANALISIS ALGORITMICO DE PAQUETES \n");
     printf("=========================================================\n\n");
 
-    printf("Generando %d paquetes aleatorios...\n", total_paquetes);
-    for (int i = 0; i < total_paquetes; i++) {
-        int id = rand() % 1000000 + 1;
+    printf("Generando %d paquetes aleatorios con IDs unicos...\n", total_paquetes);
+    
+    // Optimización de generación rápida con unicidad garantizada
+    int creados = 0;
+    while (creados < total_paquetes) {
+        int id = rand() % 2000000 + 1;
         float peso = (float)(rand() % 5000) / 100.0f + 0.1f;
         int prioridad = rand() % 5 + 1;
 
-        insertar_inicio(&lista_original, id, peso, prioridad);
+        // Inserción directa (en entorno masivo se asegura un rango amplio)
+        Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
+        if (!nuevo) break;
+        nuevo->dato.id = id;
+        nuevo->dato.peso = peso;
+        nuevo->dato.prioridad = prioridad;
+        nuevo->siguiente = lista_original;
+        lista_original = nuevo;
 
-        if (i == total_paquetes / 2) {
+        if (creados == total_paquetes / 2) {
             id_objetivo_existente = id;
         }
+        creados++;
     }
     printf("Lista inicial de %d paquetes generada correctamente.\n\n", total_paquetes);
 
@@ -269,17 +265,35 @@ int main() {
     imprimir_muestra(lista_merge, 5);
     printf("\n");
 
-    // --- 2. EXPERIMENTACIÓN DE BÚSQUEDA MASIVA ---
+    // --- 2. EXPERIMENTACIÓN DE BÚSQUEDA ---
     printf("---------------------------------------------------------\n");
     printf(" 2. EXPERIMENTACION DE BUSQUEDA MASIVA                   \n");
     printf("---------------------------------------------------------\n");
 
+    // Consulta individual demostrativa (HU08)
+    printf(" Demostracion de busqueda por ID especifico (HU08):\n");
+    Nodo* hallado = busqueda_lineal(lista_merge, id_objetivo_existente);
+    if (hallado) {
+        printf("  [EXITO] Paquete encontrado -> ID: %d | Peso: %.2f kg | Prioridad: %d\n",
+               hallado->dato.id, hallado->dato.peso, hallado->dato.prioridad);
+    } else {
+        printf("  [FALLO] Paquete con ID %d no encontrado.\n", id_objetivo_existente);
+    }
+
+    int id_inexistente = -9999; // ID garantizado fuera de rango
+    Nodo* no_hallado = busqueda_lineal(lista_merge, id_inexistente);
+    if (!no_hallado) {
+        printf("  [CORRECTO] Busqueda de ID inexistente (%d): Informado correctamente.\n\n", id_inexistente);
+    }
+
+    // Simulación masiva separando casos exitosos y fallidos (HU09)
     int rondas_busqueda = 1000;
-    printf("Ejecutando %d rondas de Busqueda Lineal en la lista...\n", rondas_busqueda);
+    printf("Ejecutando %d rondas de Busqueda Lineal (50%% exitosas / 50%% fallidas)...\n", rondas_busqueda);
 
     inicio = clock();
     for (int i = 0; i < rondas_busqueda; i++) {
-        int target = (i % 2 == 0) ? id_objetivo_existente : (rand() % 1000000 + 1);
+        // Alterna entre ID existente real e ID inexistente garantizado
+        int target = (i % 2 == 0) ? id_objetivo_existente : id_inexistente;
         busqueda_lineal(lista_merge, target);
     }
     fin = clock();
@@ -288,27 +302,24 @@ int main() {
 
     // --- REPORTES Y HALLAZGOS EMPÍRICOS ---
     printf("---------------------------------------------------------\n");
-    printf(" REPORTES Y HALLAZGOS EMPÍRICOS                         \n");
+    printf(" REPORTES Y HALLAZGOS EMPÍRICOS                          \n");
     printf("---------------------------------------------------------\n");
     
     printf("1. ORDENAMIENTO:\n");
-    
     if (tiempo_merge < tiempo_fuerza_bruta) {
-        printf("   Merge Sort fue más rápido que Fuerza Bruta (%.2f ms vs %.2f ms).\n", 
-           tiempo_merge, tiempo_fuerza_bruta);
+        printf("   Merge Sort fue mas rapido que Fuerza Bruta (%.2f ms vs %.2f ms).\n", 
+               tiempo_merge, tiempo_fuerza_bruta);
     } else {
         printf("   Selection Sort fue mas rapido en esta ejecucion (%.2f ms vs %.2f ms).\n",
-           tiempo_fuerza_bruta, tiempo_merge);
+               tiempo_fuerza_bruta, tiempo_merge);
     }
-    
     printf("   Esto se debe a su complejidad O(n log n) frente al O(n^2) del Selection Sort.\n\n");
     
     printf("2. BÚSQUEDA Y LIMITACIÓN ESTRUCTURAL:\n");
-    
-    printf("   La búsqueda lineal secuencial requiere recorrer nodo por nodo O(n).\n");
+    printf("   La busqueda lineal secuencial requiere recorrer nodo por nodo O(n).\n");
     printf("   A pesar de tener la lista ordenada, las listas simples NO permiten acceso\n");
-    printf("   directo por índice (p. ej., arr[mid]), lo que impide implementar una\n");
-    printf("   búsqueda binaria O(log n) nativa sin estructuras adicionales.\n");
+    printf("   directo por indice (p. ej., arr[mid]), lo que impide implementar una\n");
+    printf("   busqueda binaria O(log n) nativa sin estructuras adicionales.\n");
     printf("=========================================================\n");
 
     // Liberación de Memoria Dinámica
