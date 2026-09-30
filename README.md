@@ -8,7 +8,8 @@ El proyecto realiza un análisis y evaluación empírica comparando algoritmos d
 
 ## 🔗 Repositorio del Proyecto
 
-* **URL del Repositorio:** [https://github.com/tu-usuario/tu-repositorio](https://github.com/tu-usuario/tu-repositorio)
+* **URL del Repositorio:** git clone [https://github.com/tu-usuario/tu-repositorio.git](https://github.com/tu-usuario/tu-repositorio.git)
+cd tu-repositorio
 * **Plataforma de Entrega:** EAFIT Interactiva
 
 ---
