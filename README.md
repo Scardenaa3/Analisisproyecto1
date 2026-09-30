@@ -8,7 +8,7 @@ El proyecto realiza un análisis y evaluación empírica comparando algoritmos d
 
 ## 🔗 Repositorio del Proyecto
 
-* **URL del Repositorio:** git clone [https://github.com/tu-usuario/tu-repositorio.git](https://github.com/tu-usuario/tu-repositorio.git)
+* **URL del Repositorio:** [https://github.com/Scardenaa3/Analisisproyecto1](https://github.com/Scardenaa3/Analisisproyecto1/blob/main/README.md)
 cd tu-repositorio
 * **Plataforma de Entrega:** EAFIT Interactiva
 
