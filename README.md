@@ -2,7 +2,7 @@
 
 Aplicación ejecutable en consola desarrollada en **C** para la simulación, gestión, ordenamiento y búsqueda de paquetes en un centro de distribución utilizando **listas enlazadas simples**. 
 
-El proyecto realiza un análisis y evaluación empírica comparando algoritmos de **Fuerza Bruta ($O(n^2)$)** y **Dividir y Conquistar ($O(n \log n)$)** sobre un volumen masivo de datos ($50.000+$ elementos), midiendo los tiempos reales de ejecución mediante la librería `<time.h>`.
+El proyecto realiza un análisis y evaluación empírica comparando algoritmos de **Fuerza Bruta ($O(n^2)$)** y **Dividir y Conquistar (O(n \log n))** sobre un volumen masivo de datos ($50.000+$ elementos), midiendo los tiempos reales de ejecución mediante la librería `<time.h>`.
 
 ---
 
